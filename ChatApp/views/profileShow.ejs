@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Image</title>
+    <style>
+        /* Responsive styling */
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        img {
+            max-width: 100%; /* Ensures image doesn't exceed its container */
+            height: 100vh; /* Maintains aspect ratio */
+            display: block; /* Removes any default inline styles */
+            margin: 0 auto; /* Centers the image */
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <img src="<%= imageUrl %>" alt="Profile Image" />
+    </div>
+</body>
+</html>

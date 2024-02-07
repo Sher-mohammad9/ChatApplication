@@ -1,0 +1,50 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+.navbar {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.logo {
+    font-size: 1.5em;
+}
+
+.nav-links {
+    display: flex;
+}
+
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
+    padding: 0 15px;
+    font-size: 1em;
+}
+
+.nav-links a:hover {
+    text-decoration: underline;
+}
+
+#dashboard {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+#user-list {
+    width: 30%;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+#content {
+    width: 60%;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
