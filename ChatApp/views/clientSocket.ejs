@@ -1,0 +1,67 @@
+<script>
+ const sender_id = "<%= user._id %>";
+ const receiver_id = "<%= locals.chatWithUser?._id %>"
+    // Load socket.io
+    const socket = io("/my-chat", {
+        auth : {
+            userId : sender_id 
+        }
+    });
+    
+    // User Online status handle
+    socket.on("userOnlineStatus", (userId)=>{
+            document.getElementById(userId.userId).textContent = "Online";
+            document.getElementById(userId.userId).style.color = "green"
+    });
+
+    // User Offline status handle
+    socket.on("userOfflineStatus", (userId)=>{
+            document.getElementById(userId.userId).textContent = "Offline";
+            document.getElementById(userId.userId).style.color = "red"
+    });
+
+    // User chats
+    const sendBtn = document.getElementById("sendBtn");
+    sendBtn.addEventListener("click", ()=>{
+        const chatContainer = document.getElementById("chat-content");
+        const msg = document.getElementById("message").value;
+        if(msg){
+        socket.emit("user-message", {
+            sender_id : sender_id,
+            receiver_id : receiver_id,
+            message : msg
+        })
+        const div = document.createElement("div")
+        div.setAttribute("class", "rightUser")
+        const h5 = document.createElement("h5");
+        const textNode = document.createTextNode(msg)
+        h5.appendChild(textNode);
+        div.appendChild(h5);
+        chatContainer.appendChild(div)   
+        document.getElementById("message").value = ""
+        lastChat()
+    }     
+    });
+
+    socket.on("load-user-message", (data)=>{
+        console.log(sender_id, receiver_id);
+        if(sender_id == data.receiver_id && receiver_id == data.sender_id){
+        const chatContainer = document.getElementById("chat-content");
+        const div = document.createElement("div")
+        div.setAttribute("class", "leftUser")
+        const h5 = document.createElement("h5");
+        const textNode = document.createTextNode(data.message)
+        h5.appendChild(textNode);
+        div.appendChild(h5);
+        chatContainer.appendChild(div);
+        lastChat()
+        }
+    })
+
+    // Show last chat
+    function lastChat(){
+        const chatContainer = document.getElementById("chat-content");
+        chatContainer.scrollTop = chatContainer.scrollHeight - chatContainer.clientHeight;
+    }
+    lastChat()
+</script>

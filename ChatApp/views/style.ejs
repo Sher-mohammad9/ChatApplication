@@ -1,0 +1,275 @@
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: "Roboto", sans-serif;
+  }
+
+  .navbar {
+    background-color: #333;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    height: 55px;
+  }
+
+  .navbar > img {
+    width: 50px; 
+    height: 50px; 
+    margin-left: 10px; 
+    border-radius: 25px;
+    object-fit: cover;
+  }
+
+  .navbar > h2 {
+    margin-left: 10px;
+    font-size: 24px;
+    font-family: "Roboto", sans-serif;
+  }
+
+  .navbar > a {
+    margin-left: 10px;
+    text-decoration: none;
+    color: white;
+    font-size: 20px;
+  }
+
+  #dashboard {
+    display: flex;
+    flex-wrap: wrap; /* Allow content to wrap to the next line */
+  }
+
+  #user-search {
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-sizing: border-box; /* Include padding and border in the total width */
+  }
+ 
+  #user-search > form > input {
+    width: 91%; /* Take full width */
+    padding: 8px 10px;
+    font-size: 18px;
+    border-radius: 25px;
+    border: 1px solid black;
+    color: black;
+    margin-bottom: 10px; /* Add some space between input and button */
+  }
+
+  #user-search > form > button {
+    width: 97%; /* Take full width */
+    padding: 5px 24px;
+    font-size: 20px;
+    border-radius: 25px;
+    background: gray;
+    border: 1px solid black;
+    color: white;
+    font-family: sans-serif;
+    cursor: pointer;
+  }
+
+  #users {
+    list-style: none;
+    padding: 0;
+  }
+
+  #users li {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    padding-top: 4px;
+  }
+
+  #users li:hover {
+    background-color: #ccc;
+    border-radius: 25px;
+  } 
+
+  #users > li > a {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+#users > li > a > img {
+  border-radius: 25px; 
+  width: 50px; 
+  height: 50px; 
+  object-fit: cover;
+  margin-top: -4px;
+}
+
+#users > li > a > span {
+  margin-left: 8px; 
+  font-size: 25px;
+  color: black;
+}
+
+  #content {
+    flex-grow: 1; /* Allow content to take remaining width */
+    padding: 10px;
+    box-sizing: border-box;
+    background-color: lightgoldenrodyellow;
+  }
+
+  #image {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    margin: -9px;
+  }
+
+  #image > a {
+    text-decoration: none;
+    margin-left: 10px;
+    margin-top: 3px;
+    color: black;
+  }
+
+  #image > a > span {
+    font-size: 25px;
+  }
+
+  #image > a > img {
+    border-radius: 25px;
+    width: 50px;
+    height: 50px;
+    margin-left: 5px;
+    object-fit: cover;
+  }
+
+  #chat-content {
+    width: 60%;
+    height: 78%;
+    margin: auto;
+    margin-top: 9px;
+  }
+
+  #sendMsg {
+    width: 60%;
+    margin: auto;
+  }
+
+  #sendMsg > input {
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 6px 5px;
+    outline: none;
+    width: 75%;
+    font-size: 16px;
+  }
+
+  #sendMsg > button {
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 0px;
+    cursor: pointer;
+    width: 21%;
+    margin-left: 5px;
+    font-size: 17px;
+  }
+
+  .rightUser {
+    text-align: right;
+    padding: 5px 10px;
+  }
+
+  .rightUser > h5 {
+    margin: 0px;
+    padding: 3px;
+    font-size: 16px;
+    border-radius: 10px;
+    width: auto;
+  }
+
+  .leftUser {
+    text-align: left;
+    padding: 5px 10px;
+  }
+
+  .leftUser > h5 {
+    margin: 0px;
+    padding: 3px;
+    font-size: 16px; 
+    border-radius: 10px;
+    width: auto;
+  }
+
+  @media screen and (min-width: 650px) {
+    /* Apply styles for screens with a minimum width of 768px */
+    #dashboard {
+      flex-wrap: nowrap; /* Prevent content from wrapping */
+    }
+
+    #user-search {
+      width: 25%;
+      overflow: scroll;
+    }
+
+    #user-search::-webkit-scrollbar {
+      display: none;
+    }
+
+    #content {
+      width: 68%;
+    }
+
+    #chat-content {
+      overflow: scroll;
+    }
+
+    #chat-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    #sendMsg {
+      margin-top: 22px;
+    }
+  }
+
+  @media screen and (max-width: 648px) {
+    #dashboard {
+      flex-wrap: nowrap; /* Prevent content from wrapping */
+    }
+    #user-search {
+      width: 40%;
+      overflow: auto;
+    }
+    #user-search::-webkit-scrollbar {
+      display: none;
+    }
+    #users > li > a > span {
+      font-size: 14px;
+    }
+    #content {
+      width: 68%;
+    }
+    
+    #chat-content {
+      overflow: scroll;
+      width: 80%;
+    }
+
+    #chat-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    #sendMsg {
+    width: 73%;
+    margin: auto;
+    margin-top: 18px;
+}
+
+    #sendMsg > input {
+    width: 69%;
+    outline: none;
+}
+
+#sendMsg > button {
+    padding: 6px 0px;
+    width: 23%;
+}
+
+  }
+</style>

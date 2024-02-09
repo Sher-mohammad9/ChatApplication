@@ -31,9 +31,9 @@ const userSchema = new mongoose.Schema({
         required : true
     },
 
-    is_online : {
+    userStatus : {
         type : String,
-        default : "0"
+        default : "Online"
     },
 
     userType : {

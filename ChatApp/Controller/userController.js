@@ -1,3 +1,4 @@
+const chatModel = require("../Models/chatModel");
 const userModel = require("../Models/userModel");
 const jwt = require("jsonwebtoken");
 
@@ -37,8 +38,10 @@ exports.logIn = async(req, resp, next)=>{
 
 exports.userChats = async (req, resp)=>{
   try{
-    const whoUser = await userModel.findById(req.params.id);
-    resp.render("home", {user : req.user, users : req.users, whoUser,});
+    const chatWithUser = await userModel.findById(req.params.id);
+    const userChats = await chatModel.find({$or : [ {sender_id : req.user._id, receiver_id : req.params.id }, 
+                                                    {sender_id :req.params.id, receiver_id : req.user._id }]});
+    resp.render("home", {user : req.user, users : req.users, chatWithUser, userChats,});
   }catch(err){
     console.log(err.message)
   }

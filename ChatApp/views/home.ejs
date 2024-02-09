@@ -5,143 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real-time Dashboard</title>
     <link rel="stylesheet" href=".././public/style.css">
-    <style>
- body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-}
-
-.navbar {
-    background-color: #333;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    height: 55px;
-}
-
-.navbar > a {
-    margin-left: 10px;
-    text-decoration: none;
-    color: white;
-    font-size: 20px;
-}
-
-
-#dashboard {
-    display: flex;
-    flex-wrap: wrap; /* Allow content to wrap to the next line */
-}
-
-#user-list {
-    border: 1px solid #ccc;
-    padding: 10px;
-    box-sizing: border-box; /* Include padding and border in the total width */
-}
-
-#content {
-    flex-grow: 1; /* Allow content to take remaining width */
-    padding: 10px;
-    box-sizing: border-box;
-    background-color: lightgoldenrodyellow;
-}
-
-#userSearch > input {
-    width: 91%; /* Take full width */
-    padding: 8px 10px;
-    font-size: 18px;
-    border-radius: 25px;
-    border: 1px solid black;
-    color: black;
-    margin-bottom: 10px; /* Add some space between input and button */
-}
-
-#userSearch > button {
-    width: 97%; /* Take full width */
-    padding: 5px 24px;
-    font-size: 20px;
-    border-radius: 25px;
-    background: gray;
-    border: 1px solid black;
-    color: white;
-    font-family: sans-serif;
-    cursor: pointer;
-}
-
-#users {
-    list-style: none;
-    padding: 0;
-}
-
-#users li {
-    margin-bottom: 5px;
-    display: flex;
-    align-items: center;
-    padding-top: 4px;
-}
-
-#users :hover{
-    background-color:#ccc;
-    border-radius: 25px;
-}
-
-#users > li > a {
-   color: black;
-}
-
-#image {
-    display: flex;
-    align-items: center;
-}
-
-@media screen and (min-width: 650px) {
-    /* Apply styles for screens with a minimum width of 768px */
-    #dashboard {
-        flex-wrap: nowrap; /* Prevent content from wrapping */
-    }
-
-    #user-list {
-        width: 25%;
-        overflow: scroll;
-    }
-
-    #user-list::-webkit-scrollbar{
-    display: none;
-    }
-
-    #content {
-        width: 68%;
-    }
-}
-
-@media screen and (max-width: 648px) {
-    #dashboard {
-        flex-wrap: nowrap; /* Prevent content from wrapping */
-    }
-#user-list {
-    width: 65%;
-    overflow:auto;
-}
-#user-list::-webkit-scrollbar{
-    display: none;
-}
-#content {
-        width: 68%;
-    }
-}
-
-
-    </style>
+    <%- include("./style.ejs") %>
 </head>
 <body> 
     <div class="navbar">
-        <img src="<%= user.profileImage %>" style="width: 50px; height: 50px; margin-left: 10px; border-radius: 25px;"/>
-          <h2 style="margin-left: 10px;"><%= user.name %></h2>
-          <a href="/app/logout">Loguot</a>
+        <img src="<%= user.profileImage %>" />
+          <h2><%= user.name %></h2>
+          <a href="/app/logout">Log Out</a>
     </div>
     <div id="dashboard" style="height: 91vh;">
-        <div id="user-list">
-            <form id="userSearch" action="/user/search" method="post">
+        <div id="user-search">
+            <form action="/user/search" method="post">
                 <input type="text" id="user" value="<%= locals.value ? value : "" %>" name="userName" placeholder="Search...." />
                 <button id="btn" type="submit">Search</button>
               </form>
@@ -149,32 +23,53 @@
                 <% users.forEach(user => { %>
                     <li>
                         <a href="<%= `/user/chats/${user._id}`%>">
-                        <img src="<%= user.profileImage %>" style="border-radius: 25px; width: 50px; height: 50px;"/>
-                        <a href="<%= `/user/chats/${user._id}`%>" style="text-decoration: none; margin-left: 8px; font-size: 22px;"><%= user.name %></a>
-                        <p style="margin-top: 0px; color: green;">Online</p>
+                        <img src="<%= user.profileImage %>" />
+                        <span><%= user.name %></span>
+                        <% if(user.userStatus == "Online") { %> 
+                            <sub id="<%= user._id %>" style="margin-top: -10px; margin-left: 5px; color: green;"><%= user.userStatus %></sub>
+                        <% } else { %>
+                            <sub id="<%= user._id %>" style="margin-top: -10px; margin-left: 5px; color: red;"><%= user.userStatus %></sub>
+                        <%  } %>
+                        
                         </a>
                     </li>
                <% }) %>
             </ul>
         </div>
         <div id="content">
-            <% if(locals.whoUser) { %> 
+            <% if(locals.chatWithUser) { %> 
             <div id="image">
-                <a href="<%= `/user/image/${whoUser._id}`%>"><img src="<%= whoUser.profileImage %>" style="border-radius: 25px; width: 50px; height: 50px; margin-left: 5px;"/></a>
-                <a href="#" style="text-decoration: none; margin-left: 10px; color: black;"><span><%= whoUser.name %></span></a>
+                <a href="<%= `/user/image/${chatWithUser._id}`%>"><img src="<%= chatWithUser.profileImage %>" /></a>
+                <a href="#" ><span><%= chatWithUser.name %></span></a>
             </div>
-            <div class="chat-content">
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores esse maxime praesentium ad nesciunt molestiae, dolores iste porro itaque vitae eaque cum accusamus temporibus harum inventore ex, sequi est alias?</p>
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores esse maxime praesentium ad nesciunt molestiae, dolores iste porro itaque vitae eaque cum accusamus temporibus harum inventore ex, sequi est alias?</p>
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores esse maxime praesentium ad nesciunt molestiae, dolores iste porro itaque vitae eaque cum accusamus temporibus harum inventore ex, sequi est alias?</p>
-           
+            <div id="chat-content">
+             <% locals.userChats.forEach(chats => {
+             if(JSON.stringify(chats.sender_id) ==  JSON.stringify(user._id)) { %>
+                  <div class="rightUser">
+                    <h5> <%= chats.message %></h5>
+                  </div>
+             <% } else { %>
+                  <div class="leftUser">
+                    <h5> <%= chats.message %></h5>
+                  </div>
+             <% }}) %>
         </div>
-        <div>
-            <input type="text" name="text" placeholder="Lets Chats"/>
-            <button>Send</button>
+        <div id="sendMsg">
+            <input type="text" name="text" id="message" placeholder="Lets Chats"/>
+            <button id="sendBtn">Send</button>
         </div>
             <% } %>
         </div>
     </div>
 </body>
+
+<!-- Load socket.io -->
+<script src="/socket.io/socket.io.js"></script>
+
+<!-- back-end socket handle -->
+<script src="../Controller/socketController.js"></script>
+
+<!-- Front-end socket handle -->
+<%- include("./clientSocket.ejs") %>
+
 </html>
