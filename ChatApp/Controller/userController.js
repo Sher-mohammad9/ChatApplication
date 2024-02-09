@@ -47,7 +47,7 @@ exports.userChats = async (req, resp)=>{
   }
 }
 
-exports.getUserByName = async (req, resp)=>{
+exports.getUserByName = async (req,resp)=>{
   try{
       const userName = JSON.parse(JSON.stringify(req.body));
       const searchUser = await userModel.find({name : {$regex : userName.userName, $options : "i"}});
