@@ -1,4 +1,6 @@
 <style>
+  @import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+
   body {
     margin: 0;
     padding: 0;
@@ -14,9 +16,9 @@
   }
 
   .navbar > img {
-    width: 50px; 
-    height: 50px; 
-    margin-left: 10px; 
+    width: 50px;
+    height: 50px;
+    margin-left: 10px;
     border-radius: 25px;
     object-fit: cover;
   }
@@ -44,7 +46,7 @@
     padding: 10px;
     box-sizing: border-box; /* Include padding and border in the total width */
   }
- 
+
   #user-search > form > input {
     width: 91%; /* Take full width */
     padding: 8px 10px;
@@ -77,32 +79,27 @@
     display: flex;
     align-items: center;
     padding-top: 4px;
+    cursor: pointer;
   }
 
   #users li:hover {
     background-color: #ccc;
     border-radius: 25px;
-  } 
+  }
 
-  #users > li > a {
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-}
+  #users > li > img {
+    border-radius: 25px;
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    margin-top: -4px;
+  }
 
-#users > li > a > img {
-  border-radius: 25px; 
-  width: 50px; 
-  height: 50px; 
-  object-fit: cover;
-  margin-top: -4px;
-}
-
-#users > li > a > span {
-  margin-left: 8px; 
-  font-size: 25px;
-  color: black;
-}
+  #users > li > span {
+    margin-left: 8px;
+    font-size: 25px;
+    color: black;
+  }
 
   #content {
     flex-grow: 1; /* Allow content to take remaining width */
@@ -177,10 +174,12 @@
 
   .rightUser > h5 {
     margin: 0px;
-    padding: 3px;
+    padding: 5px;
     font-size: 16px;
     border-radius: 10px;
-    width: auto;
+    letter-spacing: 1px;
+    font-weight: normal;
+    cursor: pointer;
   }
 
   .leftUser {
@@ -190,10 +189,12 @@
 
   .leftUser > h5 {
     margin: 0px;
-    padding: 3px;
-    font-size: 16px; 
+    padding: 5px;
+    font-size: 16px;
     border-radius: 10px;
-    width: auto;
+    letter-spacing: 1px;
+    font-weight: normal;
+    cursor: pointer;
   }
 
   @media screen and (min-width: 650px) {
@@ -226,6 +227,17 @@
     #sendMsg {
       margin-top: 22px;
     }
+
+    #modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 600px;
+    top: 280px;
+    width: 30%;
+    height: 15%;
+  }
+
   }
 
   @media screen and (max-width: 648px) {
@@ -239,13 +251,13 @@
     #user-search::-webkit-scrollbar {
       display: none;
     }
-    #users > li > a > span {
+    #users > li > span {
       font-size: 14px;
     }
     #content {
       width: 68%;
     }
-    
+
     #chat-content {
       overflow: scroll;
       width: 80%;
@@ -256,20 +268,69 @@
     }
 
     #sendMsg {
-    width: 73%;
-    margin: auto;
-    margin-top: 18px;
-}
+      width: 73%;
+      margin: auto;
+      margin-top: 18px;
+    }
 
     #sendMsg > input {
-    width: 69%;
-    outline: none;
-}
+      width: 69%;
+      outline: none;
+    }
 
-#sendMsg > button {
-    padding: 6px 0px;
-    width: 23%;
-}
+    #sendMsg > button {
+      padding: 6px 0px;
+      width: 23%;
+    }
+    .leftUser > h5 {
+      width: 211px;
+    }   
+
+    #modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 245px;
+    top: 239px;
+    width: 60%;
+    height: 15%;
+  }
+
 
   }
+
+
+
+
+
+  .modal-content {
+    margin: 0% auto;
+    margin-top: 3px;
+    padding: 20px;
+    width: 25%;
+    background: #fff;
+  }
+
+  
+  #close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    margin-top: -25px;
+    margin-right: -10px;
+    font-weight: bold;
+  }
+
+  #close:hover,
+  #close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }  
+
+  .modal-content > button {
+    padding: 5px 10px;
+    margin-left: 12px;
+  } 
+
 </style>

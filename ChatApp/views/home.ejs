@@ -1,75 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Real-time Dashboard</title>
-    <link rel="stylesheet" href=".././public/style.css">
+    <link rel="stylesheet" href=".././public/style.css" />
     <%- include("./style.ejs") %>
-</head>
-<body> 
+  </head>
+  <body>
     <div class="navbar">
-        <img src="<%= user.profileImage %>" />
-          <h2><%= user.name %></h2>
-          <a href="/app/logout">Log Out</a>
+      <img src="<%= user.profileImage %>" />
+      <h2><%= user.name %></h2>
+      <a href="/app/logout">Log Out</a>
     </div>
-    <div id="dashboard" style="height: 91vh;">
-        <div id="user-search">
-            <form action="/user/search" method="post">
-                <input type="text" id="user" value="<%= locals.value ? value : "" %>" name="userName" placeholder="Search...." />
-                <button id="btn" type="submit">Search</button>
-              </form>
-            <ul id="users">
-                <% users.forEach(user => { %>
-                    <li>
-                        <a href="<%= `/user/chats/${user._id}`%>">
-                        <img src="<%= user.profileImage %>" />
-                        <span><%= user.name %></span>
-                        <% if(user.userStatus == "Online") { %> 
-                            <sub id="<%= user._id %>" style="margin-top: -10px; margin-left: 5px; color: green;"><%= user.userStatus %></sub>
-                        <% } else { %>
-                            <sub id="<%= user._id %>" style="margin-top: -10px; margin-left: 5px; color: red;"><%= user.userStatus %></sub>
-                        <%  } %>
-                        
-                        </a>
-                    </li>
-               <% }) %>
-            </ul>
-        </div>
-        <div id="content">
-            <% if(locals.chatWithUser) { %> 
-            <div id="image">
-                <a href="<%= `/user/image/${chatWithUser._id}`%>"><img src="<%= chatWithUser.profileImage %>" /></a>
-                <a href="#" ><span><%= chatWithUser.name %></span></a>
-            </div>
-            <div id="chat-content">
-             <% locals.userChats.forEach(chats => {
-             if(JSON.stringify(chats.sender_id) ==  JSON.stringify(user._id)) { %>
-                  <div class="rightUser">
-                    <h5> <%= chats.message %></h5>
-                  </div>
-             <% } else { %>
-                  <div class="leftUser">
-                    <h5> <%= chats.message %></h5>
-                  </div>
-             <% }}) %>
-        </div>
-        <div id="sendMsg">
-            <input type="text" name="text" id="message" placeholder="Lets Chats"/>
-            <button id="sendBtn">Send</button>
-        </div>
-            <% } %>
-        </div>
+    <div id="dashboard" style="height: 91vh">
+      <div id="user-search">
+        <form action="/user/search" method="post">
+          <input type="text" id="user" value="<%= locals.value ? value : "" %>"
+          name="userName" placeholder="Search...." />
+          <button id="btn" type="submit">Search</button>
+        </form>
+        <ul id="users">
+          <% users.forEach(user => { %>
+          <li id="<%= user._id %>">
+              <img src="<%= user.profileImage %>" />
+              <span><%= user.name %></span>
+              <% if(user.userStatus == "Online") { %>
+              <sub
+                id="<%= user._id+"-status" %>"
+                style="margin-top: -10px; margin-left: 5px; color: green"
+                ><%= user.userStatus %></sub
+              >
+              <% } else { %>
+              <sub
+                id="<%= user._id+"-status" %>"
+                style="margin-top: -10px; margin-left: 5px; color: red"
+                ><%= user.userStatus %></sub
+              >
+              <% } %>
+          </li>
+          <% }) %>
+        </ul>
+      </div>
+      <div id="content">
+        
+      </div>
     </div>
-</body>
 
-<!-- Load socket.io -->
-<script src="/socket.io/socket.io.js"></script>
+    <!-- Delete chat model  -->
+    <div class="deleteChatModel" id="modal">
+      <div class="modal-content">
+        <span id="close">&times;</span>
+        <button id="deleteBtn" style="padding: 5px 10px;">Delete</button>
+        
+      </div>
+    
+    </div>
 
-<!-- back-end socket handle -->
-<script src="../Controller/socketController.js"></script>
+  <!-- Load socket.io -->
+  <script src="/socket.io/socket.io.js"></script>
 
-<!-- Front-end socket handle -->
-<%- include("./clientSocket.ejs") %>
+  <!-- back-end socket handle -->
+  <script src="../Controller/socketController.js"></script>
 
+  <!-- Front-end socket handle -->
+  <%- include("./clientSocket.ejs") %>
 </html>

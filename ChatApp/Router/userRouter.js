@@ -10,9 +10,13 @@ Router.route("/register").post(handleFiles, controller.sginUp);
 Router.route("/login").post(controller.logIn);
 // User Chats Load
 Router.route("/chats/:id").get(authVerify, controller.userChats);
+// Save user chats
+Router.route("/save-chat").post(controller.saveChats);
+// Delete user chats
+Router.route("/delete-chat").post(controller.deleteChat)
 // User search y name
 Router.route("/search").post(authVerify, controller.getUserByName);
-// user f=profile photo show
+// user profile photo show
 Router.route("/image/:id").get(controller.userProfilePhoto)
 
 module.exports = Router;

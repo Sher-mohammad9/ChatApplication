@@ -1,67 +1,177 @@
 <script>
- const sender_id = "<%= user._id %>";
- const receiver_id = "<%= locals.chatWithUser?._id %>"
-    // Load socket.io
-    const socket = io("/my-chat", {
-        auth : {
-            userId : sender_id 
-        }
-    });
-    
-    // User Online status handle
-    socket.on("userOnlineStatus", (userId)=>{
-            document.getElementById(userId.userId).textContent = "Online";
-            document.getElementById(userId.userId).style.color = "green"
-    });
+  const sender_id = "<%= user._id %>";
+  let receiver_id = null;
+  // Load socket.io
+  const socket = io("/my-chat", {
+    auth: {
+      userId: sender_id,
+    },
+  });
 
-    // User Offline status handle
-    socket.on("userOfflineStatus", (userId)=>{
-            document.getElementById(userId.userId).textContent = "Offline";
-            document.getElementById(userId.userId).style.color = "red"
-    });
+  // User Online status handle
+  socket.on("userOnlineStatus", (userId) => {
+    document.getElementById(userId.userId+"-status").textContent = "Online";
+    document.getElementById(userId.userId+"-status").style.color = "green";
+  });
 
-    // User chats
-    const sendBtn = document.getElementById("sendBtn");
-    sendBtn.addEventListener("click", ()=>{
-        const chatContainer = document.getElementById("chat-content");
-        const msg = document.getElementById("message").value;
-        if(msg){
-        socket.emit("user-message", {
-            sender_id : sender_id,
-            receiver_id : receiver_id,
-            message : msg
-        })
-        const div = document.createElement("div")
-        div.setAttribute("class", "rightUser")
+  // User Offline status handle
+  socket.on("userOfflineStatus", (userId) => {
+    document.getElementById(userId.userId+"-status").textContent = "Offline";
+    document.getElementById(userId.userId+"-status").style.color = "red";
+  });
+
+  const li = document.getElementsByTagName("li");
+  for (let i = 0; i < li.length; i++) {
+    li[i].addEventListener("click", async function () {
+      receiver_id = li[i].getAttributeNode("id").value;
+
+      // Get old chats
+      socket.emit("existsChats", { sender_id, receiver_id });
+    });
+  }
+
+  // Handle old chats
+  socket.on("loadExistsChats", function (data) {
+    const mainContainer = document.getElementById("content");
+    const content = `<div id="image">
+          <a href="/user/image/${data.oldChats.chatWithUser._id}"
+            ><img src="${data.oldChats.chatWithUser.profileImage}"
+          /></a>
+          <a href="#"><span>${data.oldChats.chatWithUser.name}</span></a>
+        </div>
+         <div id="chat-content">
+          
+          </div>
+          
+        <div id="sendMsg">
+          <input
+            type="text"
+            name="text"
+            id="message"
+            placeholder="Lets Chats"
+          />
+          <button id="sendBtn">Send</button>
+        </div>`;
+
+    mainContainer.innerHTML = content;
+
+    const chatContainer = document.getElementById("chat-content");
+    data.oldChats.userChats.forEach((chats) => {
+      let addClass = null
+      if (chats.sender_id == sender_id) {
+        addClass = "rightUser"
+      } else {
+        addClass = "leftUser"
+      }
+        const div = document.createElement("div");
+        div.setAttribute("class", addClass);
+        div.setAttribute("id", chats._id+"-div");
         const h5 = document.createElement("h5");
-        const textNode = document.createTextNode(msg)
-        h5.appendChild(textNode);
-        div.appendChild(h5);
-        chatContainer.appendChild(div)   
-        document.getElementById("message").value = ""
-        lastChat()
-    }     
-    });
-
-    socket.on("load-user-message", (data)=>{
-        console.log(sender_id, receiver_id);
-        if(sender_id == data.receiver_id && receiver_id == data.sender_id){
-        const chatContainer = document.getElementById("chat-content");
-        const div = document.createElement("div")
-        div.setAttribute("class", "leftUser")
-        const h5 = document.createElement("h5");
-        const textNode = document.createTextNode(data.message)
+        h5.setAttribute("id", chats._id);
+        const textNode = document.createTextNode(chats.message);
         h5.appendChild(textNode);
         div.appendChild(h5);
         chatContainer.appendChild(div);
-        lastChat()
-        }
-    })
+    });
 
-    // Show last chat
-    function lastChat(){
-        const chatContainer = document.getElementById("chat-content");
-        chatContainer.scrollTop = chatContainer.scrollHeight - chatContainer.clientHeight;
+    lastChat();
+    // User chats
+    const sendBtn = document.getElementById("sendBtn");
+    sendBtn.addEventListener("click", async () => {
+      const chatContainer = document.getElementById("chat-content");
+      const msg = document.getElementById("message").value;
+      if (msg) {
+         
+        const body = {
+          "sender_id": sender_id,
+          "receiver_id": receiver_id,
+          "message": msg,
+        }
+        // Save user chats
+        const response = await fetch("/user/save-chat", {
+          method : "post",
+          body : JSON.stringify(body),
+          headers : {
+            "Content-Type": "application/json",
+          }
+        })
+        let chats = await response.json()
+        const div = document.createElement("div");
+        div.setAttribute("class", "rightUser");
+        div.setAttribute("id", chats.saveChats._id+"-div");
+        const h5 = document.createElement("h5");
+        h5.setAttribute("id", chats.saveChats._id);
+        const textNode = document.createTextNode(chats.saveChats.message);
+        h5.appendChild(textNode);
+        div.appendChild(h5);
+        chatContainer.appendChild(div);
+        document.getElementById("message").value = "";
+        socket.emit("user-message",  chats.saveChats)
+        lastChat();
+      }
+    });
+
+    // Select user chats h5
+    const h = document.getElementsByTagName("h5");
+    for(let i=0; i < h.length; i++){
+    h[i].addEventListener("click", function(){
+      const id = h[i].getAttributeNode("id").value;
+    document.getElementById("modal").style.display = "block";
+    
+      const deleteBtn = document.getElementById("deleteBtn");
+      deleteBtn.addEventListener("click", async function(){
+        
+        // Delete user chats
+        const response = await fetch("/user/delete-chat", {
+          method : "post",
+          body : JSON.stringify({"chatId" : id}),
+          headers : {
+            "Content-Type": "application/json",
+          }
+        });
+        const responseData = await response.json();
+        console.log(responseData);
+        if(responseData.success == true){
+        // Remove delete chats
+        document.getElementById(id+"-div").remove()
+        document.getElementById("modal").style.display = "none";
+        socket.emit("deleteChat", id);
+        } 
+      })
+
+    document.getElementById("close").addEventListener("click", function(){
+      modal.style.display = "none"
+    })
+  })
+  }
+  });
+
+  // Remove delete chat
+  socket.on("deleteChatRemove", function(id){
+    document.getElementById(id+"-div").remove()
+  })
+
+  // Handle other user chat
+  socket.on("load-user-message", (data) => {
+    if (sender_id == data.receiver_id && receiver_id == data.sender_id) {
+      const chatContainer = document.getElementById("chat-content");
+      const div = document.createElement("div");
+      div.setAttribute("class", "leftUser");
+      div.setAttribute("id", data._id+"-div")
+      const h5 = document.createElement("h5");
+      const textNode = document.createTextNode(data.message)
+      h5.appendChild(textNode);
+      div.appendChild(h5);
+      chatContainer.appendChild(div);
+      lastChat();
     }
-    lastChat()
+    
+  });
+
+  // Show last chat
+  function lastChat() {
+    const chatContainer = document.getElementById("chat-content");
+    chatContainer.scrollTop =
+      chatContainer.scrollHeight - chatContainer.clientHeight;
+  }
 </script>
