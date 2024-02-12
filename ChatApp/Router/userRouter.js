@@ -14,7 +14,7 @@ Router.route("/chats/:id").get(authVerify, controller.userChats);
 Router.route("/save-chat").post(controller.saveChats);
 // Delete user chats
 Router.route("/delete-chat").post(controller.deleteChat)
-// User search y name
+// User search by name
 Router.route("/search").post(authVerify, controller.getUserByName);
 // user profile photo show
 Router.route("/image/:id").get(controller.userProfilePhoto)

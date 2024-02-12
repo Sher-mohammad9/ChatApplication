@@ -10,16 +10,17 @@
 
   // User Online status handle
   socket.on("userOnlineStatus", (userId) => {
-    document.getElementById(userId.userId+"-status").textContent = "Online";
-    document.getElementById(userId.userId+"-status").style.color = "green";
+    document.getElementById(userId.userId + "-status").textContent = "Online";
+    document.getElementById(userId.userId + "-status").style.color = "green";
   });
 
   // User Offline status handle
   socket.on("userOfflineStatus", (userId) => {
-    document.getElementById(userId.userId+"-status").textContent = "Offline";
-    document.getElementById(userId.userId+"-status").style.color = "red";
+    document.getElementById(userId.userId + "-status").textContent = "Offline";
+    document.getElementById(userId.userId + "-status").style.color = "red";
   });
 
+  // Select user
   const li = document.getElementsByTagName("li");
   for (let i = 0; i < li.length; i++) {
     li[i].addEventListener("click", async function () {
@@ -55,50 +56,51 @@
 
     mainContainer.innerHTML = content;
 
-    const chatContainer = document.getElementById("chat-content");
+ // Show Old Chat
+ const chatContainer = document.getElementById("chat-content");
     data.oldChats.userChats.forEach((chats) => {
-      let addClass = null
+      let addClass = null;
       if (chats.sender_id == sender_id) {
-        addClass = "rightUser"
+        addClass = "rightUser";
       } else {
-        addClass = "leftUser"
+        addClass = "leftUser";
       }
-        const div = document.createElement("div");
-        div.setAttribute("class", addClass);
-        div.setAttribute("id", chats._id+"-div");
-        const h5 = document.createElement("h5");
-        h5.setAttribute("id", chats._id);
-        const textNode = document.createTextNode(chats.message);
-        h5.appendChild(textNode);
-        div.appendChild(h5);
-        chatContainer.appendChild(div);
+      const div = document.createElement("div");
+      div.setAttribute("class", addClass);
+      div.setAttribute("id", chats._id + "-div");
+      const h5 = document.createElement("h5");
+      h5.setAttribute("id", chats._id);
+      const textNode = document.createTextNode(chats.message);
+      h5.appendChild(textNode);
+      div.appendChild(h5);
+      chatContainer.appendChild(div);
     });
-
     lastChat();
+    removeDivChat();
+
     // User chats
     const sendBtn = document.getElementById("sendBtn");
     sendBtn.addEventListener("click", async () => {
       const chatContainer = document.getElementById("chat-content");
       const msg = document.getElementById("message").value;
       if (msg) {
-         
         const body = {
-          "sender_id": sender_id,
-          "receiver_id": receiver_id,
-          "message": msg,
-        }
+          sender_id: sender_id,
+          receiver_id: receiver_id,
+          message: msg,
+        };
         // Save user chats
         const response = await fetch("/user/save-chat", {
-          method : "post",
-          body : JSON.stringify(body),
-          headers : {
+          method: "post",
+          body: JSON.stringify(body),
+          headers: {
             "Content-Type": "application/json",
-          }
-        })
-        let chats = await response.json()
+          },
+        });
+        let chats = await response.json();
         const div = document.createElement("div");
         div.setAttribute("class", "rightUser");
-        div.setAttribute("id", chats.saveChats._id+"-div");
+        div.setAttribute("id", chats.saveChats._id + "-div");
         const h5 = document.createElement("h5");
         h5.setAttribute("id", chats.saveChats._id);
         const textNode = document.createTextNode(chats.saveChats.message);
@@ -106,50 +108,17 @@
         div.appendChild(h5);
         chatContainer.appendChild(div);
         document.getElementById("message").value = "";
-        socket.emit("user-message",  chats.saveChats)
+        socket.emit("user-message", chats.saveChats);
         lastChat();
+        removeDivChat();
       }
     });
-
-    // Select user chats h5
-    const h = document.getElementsByTagName("h5");
-    for(let i=0; i < h.length; i++){
-    h[i].addEventListener("click", function(){
-      const id = h[i].getAttributeNode("id").value;
-    document.getElementById("modal").style.display = "block";
-    
-      const deleteBtn = document.getElementById("deleteBtn");
-      deleteBtn.addEventListener("click", async function(){
-        
-        // Delete user chats
-        const response = await fetch("/user/delete-chat", {
-          method : "post",
-          body : JSON.stringify({"chatId" : id}),
-          headers : {
-            "Content-Type": "application/json",
-          }
-        });
-        const responseData = await response.json();
-        console.log(responseData);
-        if(responseData.success == true){
-        // Remove delete chats
-        document.getElementById(id+"-div").remove()
-        document.getElementById("modal").style.display = "none";
-        socket.emit("deleteChat", id);
-        } 
-      })
-
-    document.getElementById("close").addEventListener("click", function(){
-      modal.style.display = "none"
-    })
-  })
-  }
   });
 
   // Remove delete chat
-  socket.on("deleteChatRemove", function(id){
-    document.getElementById(id+"-div").remove()
-  })
+  socket.on("deleteChatRemove", function (id) {
+    document.getElementById(id + "-div").remove();
+  });
 
   // Handle other user chat
   socket.on("load-user-message", (data) => {
@@ -157,16 +126,57 @@
       const chatContainer = document.getElementById("chat-content");
       const div = document.createElement("div");
       div.setAttribute("class", "leftUser");
-      div.setAttribute("id", data._id+"-div")
+      div.setAttribute("id", data._id + "-div");
       const h5 = document.createElement("h5");
-      const textNode = document.createTextNode(data.message)
+      const textNode = document.createTextNode(data.message);
       h5.appendChild(textNode);
       div.appendChild(h5);
       chatContainer.appendChild(div);
       lastChat();
+      removeDivChat();
     }
-    
   });
+
+  function removeDivChat() {
+    // Select user chats h5
+    let h = document.getElementsByTagName("h5");
+    let id = null;
+    for (let i = 0; i < h.length; i++) {
+      h[i].addEventListener("click", function () {
+        if (h.length == 1) {
+          id = h[0].getAttributeNode("id").value;
+        } else {
+          id = h[i].getAttributeNode("id").value;
+        }
+        document.getElementById("modal").style.display = "block";
+
+        const deleteBtn = document.getElementById("deleteBtn");
+        deleteBtn.addEventListener("click", async function () {
+
+          // Delete user chats
+          const response = await fetch("/user/delete-chat", {
+            method: "post",
+            body: JSON.stringify({ chatId: id }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          const responseData = await response.json();
+          if (responseData.success == true) {
+            // Remove delete chats
+            document.getElementById(id + "-div").remove();
+            h = document.getElementsByTagName("h5");
+            document.getElementById("modal").style.display = "none";
+            socket.emit("deleteChat", id);
+          }
+        });
+
+        document.getElementById("close").addEventListener("click", function () {
+          modal.style.display = "none";
+        });
+      });
+    }
+  }
 
   // Show last chat
   function lastChat() {
