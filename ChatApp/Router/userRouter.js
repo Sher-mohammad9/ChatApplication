@@ -17,6 +17,14 @@ Router.route("/delete-chat").post(controller.deleteChat)
 // User search by name
 Router.route("/search").post(authVerify, controller.getUserByName);
 // user profile photo show
-Router.route("/image/:id").get(controller.userProfilePhoto)
+Router.route("/image/:id").get(controller.userProfilePhoto);
+// Create Group
+Router.route("/create-group").post(authVerify, handleFiles, controller.createGroup);
+//Get Users
+Router.route("/get-members").post(authVerify, controller.getMembers);
+//Get Not Members in group
+Router.route("/get/not-members-in-group").post(authVerify, controller.get_Not_Members_In_Group)
+// Add member in group
+Router.route("/add-members").post(authVerify, controller.addMembers);
 
 module.exports = Router;

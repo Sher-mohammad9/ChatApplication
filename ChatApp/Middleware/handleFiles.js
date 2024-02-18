@@ -7,7 +7,7 @@ const storage = multer.diskStorage({
     },
     filename : function(req, file, cb){
         let fileName = Date.now()+"-"+file.originalname;
-        cb(null, fileName) 
+        cb(null, fileName)
     }
 });
 exports.handleFiles = multer({storage : storage}).single("profileImage")

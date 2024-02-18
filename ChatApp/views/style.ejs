@@ -4,6 +4,7 @@
   body {
     margin: 0;
     padding: 0;
+    letter-spacing: 1px;
     font-family: "Roboto", sans-serif;
   }
 
@@ -34,6 +35,8 @@
     text-decoration: none;
     color: white;
     font-size: 20px;
+    letter-spacing: 2px;
+    font-weight: 800;
   }
 
   #dashboard {
@@ -60,13 +63,15 @@
   #user-search > form > button {
     width: 97%; /* Take full width */
     padding: 5px 24px;
-    font-size: 20px;
+    font-size: 18px;
     border-radius: 25px;
     background: gray;
     border: 1px solid black;
     color: white;
     font-family: sans-serif;
     cursor: pointer;
+    margin-left: 5px;
+    letter-spacing: 1px;
   }
 
   #users {
@@ -122,8 +127,10 @@
     color: black;
   }
 
-  #image > a > span {
+  #image > span {
+    margin: 0px 5px 23px 8px;
     font-size: 25px;
+    cursor: pointer;
   }
 
   #image > a > img {
@@ -197,6 +204,207 @@
     cursor: pointer;
   }
 
+  #createGroup {
+    margin: 15px 0px 15px 7px;
+  }
+
+  #createGroup > a {
+    text-decoration: none;
+    font-size: 17px;
+    padding: 5px 89px;
+    border: 1px solid black;
+    border-radius: 25px;
+    background-color: gray;
+    color: #fff;
+  }
+
+  #groupMembers {
+    position: absolute;
+    width: 550px;
+    height: 30px;
+    overflow: hidden;
+  }
+
+  #groupMembers > span {
+    position: relative;
+    top: 13px;
+    left: 74px;
+    right: 5px;
+    font-size: 11px;
+  }
+
+  #members {
+    position: absolute;
+  }
+
+  #members > a {
+    position: relative;
+    left: 890px;
+    text-decoration: none;
+    font-size: 17px;
+    color: green;
+    cursor: pointer;
+  }
+
+  .Group-Members {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 600px;
+    top: 200px;
+    width: 30%;
+    height: 50%;
+    overflow-y: auto;
+    background: beige;
+  }
+  .Group-Members > h3 {
+    text-align: center;
+     margin-top: 10px;
+     color: rgba(224, 39, 39, 0.669);
+  } 
+
+ #membersModelClose {
+    float: right;
+    font-size: 28px;
+    margin-right: 7px;
+    font-weight: bold;
+    cursor: pointer;
+} 
+
+#group-Members {
+  padding-left: 16px;
+}
+
+#group-Members > li {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+  }
+
+  #group-Members > li:hover {
+    background-color: #ccc;
+    border-radius: 25px;
+  }
+
+  #group-Members > li > img {
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+ } 
+
+ #group-Members > li > span {
+  margin-left: 10px;
+  font-size: 20px;
+ }
+
+ #group-Members > li > a {
+    margin-left: 32px;
+    font-size: 13px;
+    border: 1px solid black;
+    padding: 3px;
+    border-radius: 25px;
+    color: white;
+    background-color: darkred;
+}
+
+#group-Members > li > a:hover {
+  background-color: white;
+  color: black;
+  cursor: pointer;
+}
+
+#add-member-form {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 600px;
+    top: 200px;
+    width: 30%;
+    height: 50%;
+    background: beige;
+}
+
+#add-group-members {
+  width: 100%;
+  height: 86%;
+  overflow-y: auto;
+}
+
+#add-group-members > h3 {
+  text-align: center;
+  margin-top: 10px;
+  color: gray;
+}
+
+#add-group-members > ul {
+  padding-left: 16px;
+}
+
+#add-group-members > ul > li {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+  }
+
+  #add-group-members > ul > li:hover {
+    background-color: #ccc;
+    border-radius: 25px;
+  }
+
+  #add-group-members > ul > li > img {
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+ } 
+
+ #add-group-members > ul > li > span {
+  margin-left: 10px;
+  font-size: 20px;
+ }
+
+ #add-group-members > ul > li > a {
+    margin-left: 32px;
+    font-size: 13px;
+    border: 1px solid black;
+    padding: 3px;
+    border-radius: 25px;
+    color: white;
+    background-color: darkred;
+}
+
+#add-group-members > ul > li > a:hover {
+  background-color: white;
+  color: black;
+  cursor: pointer;
+}
+
+#addMembers-div {
+ text-align: right;
+}
+#addMemberBtn {
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 0px;
+    cursor: pointer;
+    width: 32%;
+    margin-right: 10px;
+    font-size: 17px;
+}
+
+#closeAddMemberBtn {
+    background-color: #e91515;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 0px;
+    cursor: pointer;
+    width: 15%;
+    margin-right: 10px;
+    font-size: 17px;
+}
+
   @media screen and (min-width: 650px) {
     /* Apply styles for screens with a minimum width of 768px */
     #dashboard {
@@ -268,7 +476,7 @@
     }
 
     #sendMsg {
-      width: 73%;
+      width: 74%;
       margin: auto;
       margin-top: 18px;
     }
@@ -296,6 +504,31 @@
     height: 15%;
   }
 
+  #createGroup > a {
+    font-size: 17px;
+    padding: 5px 40px;
+  }
+
+  #groupMembers {
+width: 226px;
+  }
+  #members > a {
+    left: 280px;
+  }
+
+  .Group-Members {
+    left: 253px;
+    top: 130px;
+    width: 58%;
+    height: 50%;
+  }
+
+  #add-member-form {
+    left: 253px;
+    top: 130px;
+    width: 58%;
+    height: 50%;
+}
 
   }
 
@@ -332,5 +565,7 @@
     padding: 5px 10px;
     margin-left: 12px;
   } 
+
+
 
 </style>

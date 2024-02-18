@@ -1,3 +1,9 @@
+  <!-- Load socket.io -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <!-- back-end socket handle -->
+  <script src="../Controller/socketController.js"></script>
+
 <script>
   const sender_id = "<%= user._id %>";
   let receiver_id = null;
@@ -21,14 +27,21 @@
   });
 
   // Select user
-  const li = document.getElementsByTagName("li");
+  const li = document.getElementsByClassName("list");
   for (let i = 0; i < li.length; i++) {
-    li[i].addEventListener("click", async function () {
-      receiver_id = li[i].getAttributeNode("id").value;
-
+    if(li[i].getAttributeNode("data-group")?.value == "group"){
+      li[i].addEventListener("click", function(){
+        let id = li[i].getAttributeNode("id").value;
+      // Get old group chats
+      socket.emit("groupOldChats", { sender_id, groupId : id });
+      })
+    }else{
+      li[i].addEventListener("click", function(){
+        receiver_id = li[i].getAttributeNode("id").value;
       // Get old chats
       socket.emit("existsChats", { sender_id, receiver_id });
-    });
+      })
+    }
   }
 
   // Handle old chats
@@ -184,4 +197,217 @@
     chatContainer.scrollTop =
       chatContainer.scrollHeight - chatContainer.clientHeight;
   }
+
+  // Group chat implition
+
+  socket.on("loadGroupOldChats", async function(group){
+      const mainContainer = document.getElementById("content");
+      // get group members
+      const response = await fetch("/user/get-members", {
+        method : "post",
+        body : JSON.stringify(group),
+        headers: {
+              "Content-Type": "application/json",
+            },
+      });
+      const responseData= await response.json()
+      const membersData = responseData.members;
+      let members = []
+      for(let i=0; i < membersData.length; i++){
+          members.push(membersData[i])
+      }
+
+      let span = ""
+      for(let i=0; i < members.length; i++){
+         span += `<span>
+                      ${members[i]["name"]},
+                      </span>`
+      }
+    const content = `<div id="image">
+          <a href="/user/image/"
+            ><img src="${group.profileImage}"
+          /></a>
+          <span id="groupName">${group.name}</span>
+          <div id="groupMembers">
+             ${span}
+          </div>
+          <div id="members">
+          <a id="addMember" data-group="${group._id}" group-limit="${group.limit}">Add Member</a>
+          </div>
+        </div>
+         <div id="chat-content">
+          
+          </div>
+          
+        <div id="sendMsg">
+          <input
+            type="text"
+            name="text"
+            id="message"
+            placeholder="Lets Chats"
+          />
+          <button id="sendBtn">Send</button>
+        </div>`;
+        mainContainer.innerHTML = content;
+
+       // Show Group Members
+          showGroupMembers(members)
+
+       // Show Add Members Model
+          showAddMemberModel(group) 
+  })
+
+// Show Add Member Model functon  
+function showAddMemberModel(group){
+  const addMember = document.getElementById("addMember");
+    addMember.addEventListener("click", async function(){
+      document.getElementById("add-member-form").style.display = "block"
+      const response = await fetch("/user/get/not-members-in-group", {
+        method : "post",
+        body : JSON.stringify(group),
+        headers: {
+              "Content-Type": "application/json",
+            },
+      });
+      const responseData= await response.json();
+      const add_Members_In_Group = responseData.members;
+      const form = document.forms["member-form"];
+
+      const formDiv = document.createElement("div")
+      formDiv.setAttribute("id", "add-group-members");
+      if(add_Members_In_Group.length == 0){
+      const h3 = document.createElement("h3");
+      const h3Text = document.createTextNode("All User Members this Group");
+      h3.style.color = "green"
+      h3.appendChild(h3Text)
+      formDiv.appendChild(h3)
+      }else{
+      const h3 = document.createElement("h3");
+      const h3Text = document.createTextNode("Add Members In Group");
+      h3.appendChild(h3Text)
+      formDiv.appendChild(h3)
+      }
+
+      const ul = document.createElement("ul");
+      add_Members_In_Group.forEach((member)=>{
+      const li = document.createElement("li");
+      const input = document.createElement("input");
+      input.value = member._id
+      input.setAttribute("type", "checkbox");
+      input.setAttribute("class", "select-user")
+      const img = document.createElement("img");
+      img.setAttribute("src", member.profileImage)
+      const span = document.createElement("span");
+      const spanText = document.createTextNode(member.name)
+      span.setAttribute("class", "user-name"); 
+      span.appendChild(spanText);
+      li.appendChild(img);
+      li.appendChild(span);
+      li.appendChild(input);
+      ul.appendChild(li) 
+      })
+      const div = document.createElement("div")
+      div.setAttribute("id", "addMembers-div")
+      const addBtn = document.createElement("button");
+      addBtn.setAttribute("id", "addMemberBtn")
+      const btnText = document.createTextNode("Add Members")
+      const closeBtn = document.createElement("button");
+      closeBtn.setAttribute("id", "closeAddMemberBtn")
+      const closeBtnText = document.createTextNode("Close")
+      addBtn.appendChild(btnText)
+      closeBtn.appendChild(closeBtnText)
+      div.appendChild(addBtn)
+      div.appendChild(closeBtn)
+      formDiv.appendChild(ul)
+      form.appendChild(formDiv)
+      form.appendChild(div)
+
+      //Click Add Member Bottun
+      clickAddMemberBtn(form, group)
+
+      // Close Add Member Model
+      closeAddMemberModel()
+    });   
+}
+
+// Add Memeber button function
+function clickAddMemberBtn(form, group){
+  const addButton = document.getElementById("addMemberBtn");
+      addButton.addEventListener("click", async function(){
+      const selectedUser = [];
+      const selectInput = document.getElementsByClassName("select-user")
+
+      for(let i=0; i < selectInput.length; i++){
+        if(selectInput[i].checked){
+          selectedUser.push(selectInput[i].value)
+        }  
+      }
+        const memberData= {
+          group_id : group._id,
+          limit : group.limit,
+          groupMem : selectedUser
+        }
+        socket.emit("addMembers", memberData);
+        document.getElementById("add-member-form").innerHTML = ""
+        document.getElementById("add-member-form").style.display = "none"
+    })  
+} 
+
+// Close Add Member Model
+function closeAddMemberModel(){
+  const closeButton = document.getElementById("closeAddMemberBtn");
+      closeButton.addEventListener("click", function(){
+      document.getElementById("add-member-form").innerHTML = ""
+      document.getElementById("add-member-form").style.display = "none"
+    })  
+}
+
+// show Group Members function
+function showGroupMembers(members){
+  const groupName = document.getElementById("groupName");
+    groupName.addEventListener("click", async function(){
+      let groupModelDiv = document.getElementById("showMembers");
+      let span = document.createElement("span");
+      span.setAttribute("id", "membersModelClose")
+      span.innerHTML = "&times;"
+      groupModelDiv.appendChild(span)
+      const h3 = document.createElement("h3");
+      const h3Text = document.createTextNode("Remove Members In Group");
+      h3.appendChild(h3Text);
+      groupModelDiv.appendChild(h3)
+      groupModelDiv.style.display = "block"
+      let ul = document.createElement("ul")
+      ul.setAttribute("id", "group-Members")
+      for(let i=0; i < members.length; i++){
+        let li = document.createElement("li")
+        const img = document.createElement("img");
+        let liSpan = document.createElement("span");
+        let a = document.createElement("a");
+        a.textContent = "Remove member"
+        liSpan.innerHTML = members[i]["name"]
+        img.setAttribute("src", members[i]["profileImage"])
+        li.appendChild(img);
+        li.appendChild(liSpan)
+        li.appendChild(a)
+        ul.appendChild(li)
+      }
+      groupModelDiv.appendChild(ul)
+      document.getElementById("membersModelClose").addEventListener("click", function () {
+        groupModelDiv.style.display = "none";
+        groupModelDiv.innerHTML = ""
+        });
+    })  
+}  
+
+//
+socket.on("addedMembers", function(data){
+  if(data.msg){
+    alert(data.msg)
+  }else if(data.length > 0){
+    alert("Members add successfully")
+  }
+
+})
+
+
 </script>

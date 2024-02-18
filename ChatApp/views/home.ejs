@@ -11,6 +11,7 @@
     <div class="navbar">
       <img src="<%= user.profileImage %>" />
       <h2><%= user.name %></h2>
+      <a href="/app/group">Groups</a>
       <a href="/app/logout">Log Out</a>
     </div>
     <div id="dashboard" style="height: 91vh">
@@ -21,25 +22,35 @@
           <button id="btn" type="submit">Search</button>
         </form>
         <ul id="users">
-          <% users.forEach(user => { %>
-          <li id="<%= user._id %>">
-              <img src="<%= user.profileImage %>" />
-              <span><%= user.name %></span>
-              <% if(user.userStatus == "Online") { %>
-              <sub
-                id="<%= user._id+"-status" %>"
-                style="margin-top: -10px; margin-left: 5px; color: green"
-                ><%= user.userStatus %></sub
-              >
-              <% } else { %>
-              <sub
-                id="<%= user._id+"-status" %>"
-                style="margin-top: -10px; margin-left: 5px; color: red"
-                ><%= user.userStatus %></sub
-              >
-              <% } %>
-          </li>
-          <% }) %>
+          <% if(locals.groups) { %> 
+           <div id="createGroup"> <a href="/app/create-group">Create Groups</a></div>
+              <% groups.forEach(group => { %>
+              <li id="<%= group._id %>" class="list" data-group="group">
+                  <img src="<%= group.profileImage %>" />
+                  <span><%= group.name %></span>
+              </li>
+              <% }) %>
+          <% } else { %>
+            <% users.forEach(user => { %>
+              <li id="<%= user._id %>" class="list">
+                  <img src="<%= user.profileImage %>" />
+                  <span><%= user.name %></span>
+                  <% if(user.userStatus == "Online") { %>
+                  <sub
+                    id="<%= user._id+"-status" %>"
+                    style="margin-top: -10px; margin-left: 5px; color: green"
+                    ><%= user.userStatus %></sub
+                  >
+                  <% } else { %>
+                  <sub
+                    id="<%= user._id+"-status" %>"
+                    style="margin-top: -10px; margin-left: 5px; color: red"
+                    ><%= user.userStatus %></sub
+                  >
+                  <% } %>
+              </li>
+              <% }) %>
+            <% } %> 
         </ul>
       </div>
       <div id="content">
@@ -54,14 +65,15 @@
         <button id="deleteBtn" style="padding: 5px 10px;">Delete</button>
         
       </div>
-    
     </div>
 
-  <!-- Load socket.io -->
-  <script src="/socket.io/socket.io.js"></script>
+        <!-- Show Group Members model  -->
+        <div class="Group-Members" id="showMembers">
+        </div>   
 
-  <!-- back-end socket handle -->
-  <script src="../Controller/socketController.js"></script>
+        <!-- Add Members -->
+        <form action="" id="add-member-form" name="member-form">
+        </form>
 
   <!-- Front-end socket handle -->
   <%- include("./clientSocket.ejs") %>

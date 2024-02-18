@@ -1,9 +1,11 @@
 const userModel = require("../Models/userModel");
 const chatModel = require("../Models/chatModel");
-const { userChats, deleteChat } = require("./userController");
+const { userChats, deleteChat, groupData, addMembers } = require("./userController");
+
 const server = require("../app");
 
 const { Server } = require("socket.io");
+const membersModel = require("../Models/membersModel");
 
 const io = new Server(server);
 
@@ -51,8 +53,22 @@ myIo.on("connection", async (socket) => {
 
   // Delete chat in database
   socket.on("deleteChat",  function(id){
-    console.log(id)
     socket.broadcast.emit('deleteChatRemove', id)
+  })
+
+  // Group chats implition
+
+  socket.on("groupOldChats", async function(data){
+    const getGroupOldChats = await groupData(data);
+
+  // load group old chats
+  socket.emit("loadGroupOldChats", getGroupOldChats)
+  })
+
+  // Add Members
+  socket.on("addMembers", async function(memberData){
+    const addedMembers = await addMembers(memberData);
+    socket.emit("addedMembers", addedMembers)
   })
 
 })
