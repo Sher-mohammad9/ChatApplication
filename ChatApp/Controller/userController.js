@@ -2,8 +2,10 @@ const chatModel = require("../Models/chatModel");
 const groupModel = require("../Models/groupModel");
 const userModel = require("../Models/userModel");
 const memberModel = require("../Models/membersModel");
+const groupChats = require("../Models/groupChats");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const membersModel = require("../Models/membersModel");
 
 exports.sginUp = async (req, resp) => {
   try {
@@ -17,7 +19,7 @@ exports.sginUp = async (req, resp) => {
     }
     const users = await userModel.find({ _id: { $ne: newUser._id } });
     const token = jwt.sign({ user }, "1w2e32eq3");
-    resp.cookie("token", token).render("home", { user: newUser, users });
+    resp.cookie("token", token).redirect("/chat/app");
   } catch (err) {
     resp.send(err.message);
   }
@@ -26,11 +28,12 @@ exports.sginUp = async (req, resp) => {
 exports.logIn = async (req, resp, next) => {
   try {
     const { email, password } = req.body;
+    console.log( email, password);
     const user = await userModel.findOne({ email });
     if (user && password === user.password) {
       const users = await userModel.find({ _id: { $ne: user._id } });
       const token = jwt.sign({ user }, "1w2e32eq3");
-      resp.cookie("token", token).render("home", { user, users });
+      resp.cookie("token", token).redirect("/chat/app");
     } else {
       resp.render("login");
     }
@@ -119,8 +122,9 @@ exports.createGroup = async (req, resp)=>{
 // group data
 exports.groupData = async (req)=>{
   try{
-    const data = await groupModel.findOne({creator_id : req.sender_id, _id : req.groupId})
-    return data;
+    const data = await groupModel.findOne({creator_id : req.sender_id, _id : req.groupId});
+    const joiningGroupdata = await groupModel.findOne({_id : req.groupId});
+    return [data, joiningGroupdata];
   }catch(err){
     return {msg : err.message}
   }
@@ -154,9 +158,8 @@ exports.getMembers = async (req, resp)=>{
         $match : {
             _id : {$ne : new mongoose.Types.ObjectId(req.user._id)}
         }
-      }
+      },
      ])
-
      const members = [];
      for(let i=0; i < groupMembers.length; i++){
          if(groupMembers[i].members.length > 0){
@@ -207,7 +210,6 @@ exports.get_Not_Members_In_Group = async (req, resp)=>{
       }
   }
   
-    // const useeee = await userModel.find({$and : [{_id :  {$nin : notMemberId}}, {_id : {$ne :req.user._id }}]})
     resp.status(200).send({members,});
   }catch(err){
     resp.status(500).send({msg : err.message})
@@ -228,5 +230,38 @@ exports.addMembers = async (req)=>{
     return addedMembers;
   }catch(err){
     return {msg : err.message};
+  }
+}
+
+// Remove Group Member
+exports.removeGroupMember = async (req, resp)=>{
+  try{
+     await memberModel.deleteOne({
+      group_id : req.body.group_id,
+      user_id : req.body.user_id
+     });
+     resp.status(200).send({msg : "Member Successfully Deleted"})
+  }catch(er){
+    resp.status(500).send({msg : err.message})
+  }
+}
+
+// Save Group Chat
+
+exports.saveGroupChat = async (req, resp)=>{
+  try{
+   const saveChats = await groupChats.create(req.body);
+   resp.status(201).json({saveChats,})
+  }catch(err){
+    resp.status(500).json({msg : err.message})
+  }
+};
+
+exports.oldGroupChats = async (req, resp)=>{
+  try{
+   const oldGroupChat = await groupChats.find({group_id : req.body.group_id});
+   resp.status(200).json({success : true, oldGroupChat,});
+  }catch(err){
+    resp.status(500).json({msg : err.message})
   }
 }

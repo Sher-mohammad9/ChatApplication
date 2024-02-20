@@ -26,5 +26,11 @@ Router.route("/get-members").post(authVerify, controller.getMembers);
 Router.route("/get/not-members-in-group").post(authVerify, controller.get_Not_Members_In_Group)
 // Add member in group
 Router.route("/add-members").post(authVerify, controller.addMembers);
+// Remove Group Member
+Router.route("/remove-member").post(authVerify, controller.removeGroupMember);
+// Save group chats
+Router.route("/save-group-chat").post(authVerify, controller.saveGroupChat)
+// Group old chats
+Router.route("/group-old-chats").post(authVerify, controller.oldGroupChats);
 
 module.exports = Router;

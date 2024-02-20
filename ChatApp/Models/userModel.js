@@ -42,7 +42,11 @@ const userSchema = new mongoose.Schema({
         enum : ["User", "subsUser", "Admin"]
     },
 
-    profileImage : String,
+    profileImage : {
+        type : String,
+        default : "/images/default-Profle.jpg"
+    },
+
 }, 
 { timestamps : true}
 )

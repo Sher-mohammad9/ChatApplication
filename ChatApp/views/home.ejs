@@ -16,11 +16,13 @@
     </div>
     <div id="dashboard" style="height: 91vh">
       <div id="user-search">
+        <% if(!locals.groups) { %>
         <form action="/user/search" method="post">
           <input type="text" id="user" value="<%= locals.value ? value : "" %>"
           name="userName" placeholder="Search...." />
           <button id="btn" type="submit">Search</button>
         </form>
+        <% } %>
         <ul id="users">
           <% if(locals.groups) { %> 
            <div id="createGroup"> <a href="/app/create-group">Create Groups</a></div>
@@ -30,6 +32,13 @@
                   <span><%= group.name %></span>
               </li>
               <% }) %>
+              <!-- Show joining groups -->
+              <% joiningGroups.forEach(group => { %>
+                <li id="<%= group.group_id._id %>" class="list" data-group="group">
+                    <img src="<%= group.group_id.profileImage %>" />
+                    <span><%= group.group_id.name %></span>
+                </li>
+                <% }) %>
           <% } else { %>
             <% users.forEach(user => { %>
               <li id="<%= user._id %>" class="list">

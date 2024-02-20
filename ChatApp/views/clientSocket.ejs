@@ -6,7 +6,9 @@
 
 <script>
   const sender_id = "<%= user._id %>";
+  const userName = "<%= user.name %>";
   let receiver_id = null;
+  let group_Id = null;
   // Load socket.io
   const socket = io("/my-chat", {
     auth: {
@@ -32,6 +34,7 @@
     if(li[i].getAttributeNode("data-group")?.value == "group"){
       li[i].addEventListener("click", function(){
         let id = li[i].getAttributeNode("id").value;
+        group_Id = id
       // Get old group chats
       socket.emit("groupOldChats", { sender_id, groupId : id });
       })
@@ -192,20 +195,29 @@
   }
 
   // Show last chat
-  function lastChat() {
-    const chatContainer = document.getElementById("chat-content");
-    chatContainer.scrollTop =
+  function lastChat(who) {
+    if(who == "group"){
+      const chatContainer = document.getElementById("group-chat-content");
+      chatContainer.scrollTop =
+      chatContainer.scrollHeight - chatContainer.clientHeight;     
+    }else{
+      const chatContainer = document.getElementById("chat-content");
+      chatContainer.scrollTop =
       chatContainer.scrollHeight - chatContainer.clientHeight;
+    }
   }
 
-  // Group chat implition
+  // Group chat implement
 
   socket.on("loadGroupOldChats", async function(group){
       const mainContainer = document.getElementById("content");
       // get group members
+      const body = {
+        _id : group._id
+      }
       const response = await fetch("/user/get-members", {
         method : "post",
-        body : JSON.stringify(group),
+        body : JSON.stringify(body),
         headers: {
               "Content-Type": "application/json",
             },
@@ -235,32 +247,136 @@
           <a id="addMember" data-group="${group._id}" group-limit="${group.limit}">Add Member</a>
           </div>
         </div>
-         <div id="chat-content">
+         <div id="group-chat-content">
           
           </div>
           
-        <div id="sendMsg">
+        <div id="group-sendMsg">
           <input
             type="text"
             name="text"
-            id="message"
+            id="group-message"
             placeholder="Lets Chats"
           />
-          <button id="sendBtn">Send</button>
+          <button id="group-sendBtn">Send</button>
         </div>`;
         mainContainer.innerHTML = content;
 
+      // Load group old chats
+      const oldGroupChats = await fetch("/user/group-old-chats", {
+        method : "post",
+        body : JSON.stringify({
+          group_id : group_Id
+        }),
+        headers: {
+              "Content-Type": "application/json",
+            },
+      });
+    const oldGroupChat = await oldGroupChats.json();
+     const oldChatData = oldGroupChat.oldGroupChat
+    const chatContainer = document.getElementById("group-chat-content");
+    oldChatData.forEach((chats) => {
+      let addClass = null;
+      if (chats.sender_id == sender_id) {
+        addClass = "rightUser";
+      } else {
+        addClass = "leftUser";
+      }
+      const div = document.createElement("div");
+      div.setAttribute("class", addClass);
+      div.setAttribute("id", chats._id + "-div");
+      const span = document.createElement("span")
+        const spanTextName = document.createTextNode(chats.userName);
+        span.appendChild(spanTextName);
+        div.appendChild(span)
+      const h5 = document.createElement("h5");
+      h5.setAttribute("id", chats._id);
+      const textNode = document.createTextNode(chats.message);
+      h5.appendChild(textNode);
+      div.appendChild(h5);
+      chatContainer.appendChild(div);
+    });
+    lastChat("group");
+    removeDivChat();
+
+
+
+        // Lets group chats
+      const sendBtn = document.getElementById("group-sendBtn");
+    sendBtn.addEventListener("click", async () => {
+      const chatContainer = document.getElementById("group-chat-content");
+      const msg = document.getElementById("group-message").value;
+      if (msg) {
+        const body = {
+          sender_id: sender_id,
+          group_id: group_Id,
+          userName : userName,
+          message: msg,
+        };
+        // Save group chats
+        const response = await fetch("/user/save-group-chat", {
+          method: "post",
+          body: JSON.stringify(body),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        let chats = await response.json();
+        const saveChats = chats.saveChats;
+        const div = document.createElement("div");
+        div.setAttribute("class", "rightUser");
+        div.setAttribute("id", saveChats._id + "-div");
+        const span = document.createElement("span")
+        const spanTextName = document.createTextNode(saveChats.userName);
+        span.appendChild(spanTextName);
+        div.appendChild(span)
+        const h5 = document.createElement("h5");
+        h5.setAttribute("id", saveChats._id);
+        const textNode = document.createTextNode(saveChats.message);
+        h5.appendChild(textNode);
+        div.appendChild(h5);
+        chatContainer.appendChild(div);
+        document.getElementById("group-message").value = "";
+        socket.emit("new-message-in-group", saveChats);
+        lastChat("group");
+        removeDivChat();
+      }
+    });
+
        // Show Group Members
-          showGroupMembers(members)
+          showGroupMembers(members, group)
 
        // Show Add Members Model
           showAddMemberModel(group) 
   })
 
+// load-new-message-in-group  
+socket.on("load-new-message-in-group", (data) => {
+    if (group_Id == data.group_id) {
+      const chatContainer = document.getElementById("group-chat-content");
+      const div = document.createElement("div");
+      div.setAttribute("class", "leftUser");
+      div.setAttribute("id", data._id + "-div");
+      const span = document.createElement("span")
+        const spanTextName = document.createTextNode(data.userName);
+        span.appendChild(spanTextName);
+        div.appendChild(span)
+      const h5 = document.createElement("h5");
+      const textNode = document.createTextNode(data.message);
+      h5.appendChild(textNode);
+      div.appendChild(h5);
+      chatContainer.appendChild(div);
+      lastChat("group");
+      removeDivChat();
+    }
+  });
+
+
 // Show Add Member Model functon  
 function showAddMemberModel(group){
   const addMember = document.getElementById("addMember");
     addMember.addEventListener("click", async function(){
+      if(sender_id == group.creator_id){
       document.getElementById("add-member-form").style.display = "block"
       const response = await fetch("/user/get/not-members-in-group", {
         method : "post",
@@ -269,7 +385,7 @@ function showAddMemberModel(group){
               "Content-Type": "application/json",
             },
       });
-      const responseData= await response.json();
+      const responseData = await response.json();
       const add_Members_In_Group = responseData.members;
       const form = document.forms["member-form"];
 
@@ -298,6 +414,7 @@ function showAddMemberModel(group){
       const img = document.createElement("img");
       img.setAttribute("src", member.profileImage)
       const span = document.createElement("span");
+      span.setAttribute("id", member._id)
       const spanText = document.createTextNode(member.name)
       span.setAttribute("class", "user-name"); 
       span.appendChild(spanText);
@@ -327,7 +444,11 @@ function showAddMemberModel(group){
 
       // Close Add Member Model
       closeAddMemberModel()
+    }else{
+    alert("You are not admin")
+  }
     });   
+  
 }
 
 // Add Memeber button function
@@ -336,7 +457,6 @@ function clickAddMemberBtn(form, group){
       addButton.addEventListener("click", async function(){
       const selectedUser = [];
       const selectInput = document.getElementsByClassName("select-user")
-
       for(let i=0; i < selectInput.length; i++){
         if(selectInput[i].checked){
           selectedUser.push(selectInput[i].value)
@@ -363,7 +483,7 @@ function closeAddMemberModel(){
 }
 
 // show Group Members function
-function showGroupMembers(members){
+function showGroupMembers(members, group){
   const groupName = document.getElementById("groupName");
     groupName.addEventListener("click", async function(){
       let groupModelDiv = document.getElementById("showMembers");
@@ -371,10 +491,19 @@ function showGroupMembers(members){
       span.setAttribute("id", "membersModelClose")
       span.innerHTML = "&times;"
       groupModelDiv.appendChild(span)
+
+      if(members.length == 0){
+      const h3 = document.createElement("h3");
+      const h3Text = document.createTextNode("No Members in Group");
+      h3.appendChild(h3Text)
+      groupModelDiv.appendChild(h3)
+      }else{
       const h3 = document.createElement("h3");
       const h3Text = document.createTextNode("Remove Members In Group");
       h3.appendChild(h3Text);
       groupModelDiv.appendChild(h3)
+      }
+
       groupModelDiv.style.display = "block"
       let ul = document.createElement("ul")
       ul.setAttribute("id", "group-Members")
@@ -383,6 +512,8 @@ function showGroupMembers(members){
         const img = document.createElement("img");
         let liSpan = document.createElement("span");
         let a = document.createElement("a");
+        a.setAttribute("id", members[i]["_id"]);
+        a.setAttribute("group_id", group._id);
         a.textContent = "Remove member"
         liSpan.innerHTML = members[i]["name"]
         img.setAttribute("src", members[i]["profileImage"])
@@ -395,9 +526,40 @@ function showGroupMembers(members){
       document.getElementById("membersModelClose").addEventListener("click", function () {
         groupModelDiv.style.display = "none";
         groupModelDiv.innerHTML = ""
-        });
+      });
+      // Remove Group Member
+      removeGroupMember(members);
     })  
 }  
+
+      // Remove Group Member function
+      function removeGroupMember(members){
+        for(let i=0; i < members.length; i++){
+          const removeMember = document.getElementById(members[i]["_id"]);
+          removeMember.addEventListener("click", async function(){
+            const user_id = removeMember.getAttributeNode("id").value
+            const group_id = removeMember.getAttributeNode("group_id").value
+            const removeMemberApi = await fetch("/user/remove-member", {
+              method : "post",
+              body : JSON.stringify({
+                user_id,
+                group_id,
+              }),
+              headers: {
+                "Content-Type": "application/json",
+            }
+            });
+            let groupModelDiv = document.getElementById("showMembers");
+            groupModelDiv.style.display = "none";
+            groupModelDiv.innerHTML = ""
+            const removeMemberApiData = await removeMemberApi.json()
+            if(removeMemberApiData){
+              alert(removeMemberApiData.msg);
+            }
+          })
+        }
+        
+      }
 
 //
 socket.on("addedMembers", function(data){
@@ -408,6 +570,5 @@ socket.on("addedMembers", function(data){
   }
 
 })
-
 
 </script>

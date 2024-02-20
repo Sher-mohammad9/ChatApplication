@@ -15,6 +15,11 @@ const groupSchema = new Schema({
         type : String
     },
 
+    profileImage : {
+        type : String,
+        default : "/images/group.jpg"
+    },
+
     limit : {
         type : Number,
         required : true

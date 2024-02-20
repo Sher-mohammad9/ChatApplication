@@ -56,13 +56,22 @@ myIo.on("connection", async (socket) => {
     socket.broadcast.emit('deleteChatRemove', id)
   })
 
-  // Group chats implition
+  // Group chats implement
 
   socket.on("groupOldChats", async function(data){
     const getGroupOldChats = await groupData(data);
+    if(getGroupOldChats[0]){
+      // load group old chats
+      socket.emit("loadGroupOldChats", getGroupOldChats[0]);
+    }else{
+      // load group old chats
+      socket.emit("loadGroupOldChats", getGroupOldChats[1]);
+    }
+  });
 
-  // load group old chats
-  socket.emit("loadGroupOldChats", getGroupOldChats)
+  socket.on("new-message-in-group", function(chats){
+    // emit group new chat
+    socket.broadcast.emit("load-new-message-in-group", chats)
   })
 
   // Add Members
