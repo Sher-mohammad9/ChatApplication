@@ -20,12 +20,7 @@ Router.route("/logout").get((req,resp)=>{
 Router.route("/group").get(authVerify, async (req, resp)=>{
       const groups = await groupModel.find({creator_id : req.user._id});
       const joiningGroups = await membersModel.find({user_id : req.user._id}).populate("group_id")
-      
-      if(groups.length > 0 || joiningGroups.length > 0){
-            resp.render("home", {user : req.user, users : req.users, groups, joiningGroups});
-            return;  
-      }
-      resp.render("createGroup")
+      resp.render("home", {user : req.user, users : req.users, groups, joiningGroups});
 });
 
 Router.route("/create-group").get((req, resp)=>{
